@@ -118,14 +118,17 @@ nav h1 a {
 }
 /* ====================== Map ====================== */
 #map {
-  height: 400px;
+  height: 70vh;
   width: 100%;
   background-color: #ccc;
+}
+@media screen and (max-width: 500px){
+  #map { height: 60vh; }
 }
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
   width: 100%;
-  height: 50px;
+  min-height: 50px;
   background-color: #3397DB;
   align-items: center;
 }
