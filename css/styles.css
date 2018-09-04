@@ -352,6 +352,9 @@ nav h1 a {
   width: 100%;
   box-sizing: border-box;
 }
+#reviews-container {
+  padding: 30px 40px 80px;
+}
 @media screen and (min-width: 600px) {
   .inside #map-container{
     border-bottom: 1px solid #d9d9d9;
@@ -370,8 +373,14 @@ nav h1 a {
     
   }
 }
-#reviews-container {
-  padding: 30px 40px 80px;
+@media screen and (min-width: 1070px) {
+  #reviews-container {
+    width: 1070px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    padding: 8px 0 80px;
+  }
 }
 #reviews-container h2 {
   color: #f58500;
@@ -393,7 +402,7 @@ nav h1 a {
   overflow: hidden;
   padding: 0;
   position: relative;
-  width: 85%;
+  width: 100%;
   border-radius: 15px 0;
 }
 #reviews-list li p {
