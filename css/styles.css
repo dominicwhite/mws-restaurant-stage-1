@@ -34,6 +34,9 @@ h1, h2, h3, h4, h5, h6 {
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 	display: block;
 }
+select:focus {
+  background-color: #777;
+}
 #maincontent {
   background-color: #f3f3f3;
   min-height: 100%;
@@ -187,6 +190,14 @@ nav h1 a {
   padding: 0 10px;
   width: 200px;
 }
+.filter-label {
+  padding: 10px 10px 0;
+  color: white;
+}
+#filter-heading {
+  margin: 10px;
+  font-weight: bold;
+}
 
 /* ====================== Restaurant Listing ====================== */
 #restaurant-list-container {
@@ -221,6 +232,7 @@ nav h1 a {
   padding: 0 28px 25px;
   text-align: left;
   width: 270px;
+  border-radius: 15px 0;
   /*display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -273,12 +285,14 @@ nav h1 a {
   border-bottom: 3px solid #eee;
   color: #fff;
   display: inline-block;
-  font-size: 10pt;
+  font-size: 12pt;
+  font-weight: bold;
   margin: 15px 0 0;
   padding: 8px 30px 10px;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
+  border-radius: 15px 0;
 }
 
 /* ====================== Restaurant Details ====================== */
@@ -290,7 +304,7 @@ nav h1 a {
   box-sizing: border-box;
 }
 .inside #maincontent {
-  margin-top: 130px;
+  margin-top: 129px;
   margin-right: auto;
   box-sizing: border-box;
   width: 100%;
