@@ -244,11 +244,6 @@ nav h1 a {
   width: 270px;
   border-radius: 15px 0;
   max-width: 450px;
-  /*display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: flex-start;*/
-
 }
 @media screen and (max-width: 814px) {
   #restaurants-list li {
@@ -265,18 +260,8 @@ nav h1 a {
   display: block;
   margin: 0;
   max-width: 100%;
-  /*min-width: 100%;*/
   max-height: 50vh;
-  /*align-self: flex-start;
-  object-fit: contain;*/
 }
-/*@media screen and (max-width: 814px) and (min-width: 486px) {
-  #restaurants-list .restaurant-img {
-    max-width: 50%;
-    width: 50%;
-    min-width: 50%;
-  }
-}*/
 #restaurants-list li h1 {
   color: #f18200;
   font-family: Arial,sans-serif;
@@ -319,15 +304,6 @@ nav h1 a {
   margin-right: auto;
   box-sizing: border-box;
   width: 100%;
-}
-.inside #map-container {
-  /*height: 70vh;
-  background: blue none repeat scroll 0 0;
-  height: 87%;
-  position: fixed;
-  right: 0;
-  top: 80px;
-  width: 50%;*/
 }
 .inside #map {
   background-color: #ccc;
