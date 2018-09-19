@@ -233,6 +233,7 @@ nav h1 a {
   text-align: left;
   width: 270px;
   border-radius: 15px 0;
+  max-width: 450px;
   /*display: flex;
   flex-wrap: wrap;
   flex-direction: row;
