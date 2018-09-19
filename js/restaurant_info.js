@@ -79,6 +79,11 @@ fetchRestaurantFromURL = (callback) => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
+insertIntoImgURL = (url, subStr) => {
+  const endOfNum = url.indexOf('.j');
+  return url.slice(0, endOfNum) + subStr + url.slice(endOfNum);
+}
+
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
@@ -89,6 +94,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.alt = "Picture of the restaurant " + restaurant.name;
+  image.setAttribute('srcset', 
+    `${DBHelper.imageUrlForRestaurant(restaurant)} 800w, 
+     ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-md')} 500w,
+     ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-sm')} 250w`);
+  image.setAttribute('sizes', '80vw');
 
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
