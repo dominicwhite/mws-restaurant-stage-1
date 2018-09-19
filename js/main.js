@@ -187,7 +187,7 @@ createRestaurantHTML = (restaurant) => {
     `${DBHelper.imageUrlForRestaurant(restaurant)} 800w, 
      ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-md')} 500w,
      ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-sm')} 250w`);
-  image.setAttribute('sizes', '80vw');
+  image.setAttribute('sizes', '(max-width: 311px) 250px, 450px');
   li.append(image);
 
   const name = document.createElement('h1');
