@@ -11,17 +11,21 @@ class DBHelper {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/restaurants`;
   }
-
-  /**
-   * Fetch all restaurants.
-   */
-  static fetchRestaurants(callback) {
+  
+  static fetchRestaurantsFromServer(callback) {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', DBHelper.DATABASE_URL);
     xhr.onload = () => {
       if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
+        const restaurants = JSON.parse(xhr.responseText);
+        
+        idb.open('restaurants-db', 1).then(function(db) {
+          const tx = db.transaction('restaurants', 'readwrite');
+          const keyvalStore = tx.objectStore('restaurants')
+          for (const r of restaurants) {
+            keyvalStore.put(r);
+          }
+        });
         callback(null, restaurants);
       } else { // Oops!. Got an error from server.
         const error = (`Request failed. Returned status of ${xhr.status}`);
@@ -29,6 +33,32 @@ class DBHelper {
       }
     };
     xhr.send();
+  }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchRestaurants(callback) {
+    if ('indexedDB' in window){
+      const idbPromise = idb.open('restaurants-db', 1, upgradeDB => {
+        upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+      });
+      idbPromise.then(function(db) {
+        const tx = db.transaction('restaurants', 'readwrite');
+        const keyvalStore = tx.objectStore('restaurants');
+        keyvalStore.getAll().then(
+          function(vals) {
+            if (vals.length > 0){
+              callback(null, vals);
+            }
+            else{
+              DBHelper.fetchRestaurantsFromServer(callback);
+            }
+          }
+        );
+        //return tx.complete;
+      });
+    }
   }
 
   /**

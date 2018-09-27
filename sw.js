@@ -1,4 +1,5 @@
-const CACHE_NAME = 'restaurants-cache-v1';
+const CACHE_NAME = 'restaurants-cache-v2';
+
 const urlsToCache = ['/css/styles.css', '/js/main.js'];
 
 self.addEventListener('install', function(event) {

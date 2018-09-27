@@ -79,9 +79,9 @@ fetchRestaurantFromURL = (callback) => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
+
 insertIntoImgURL = (url, subStr) => {
-  const endOfNum = url.indexOf('.j');
-  return url.slice(0, endOfNum) + subStr + url.slice(endOfNum);
+  return url + subStr + '.jpg';
 }
 
 fillRestaurantHTML = (restaurant = self.restaurant) => {
@@ -96,7 +96,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   image.alt = "Picture of the restaurant " + restaurant.name;
   image.setAttribute('srcset', 
-    `${DBHelper.imageUrlForRestaurant(restaurant)} 800w, 
+    `${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '')} 800w, 
      ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-md')} 500w,
      ${insertIntoImgURL(DBHelper.imageUrlForRestaurant(restaurant), '-sm')} 250w`);
   image.setAttribute('sizes', '(max-width: 337px) 250px, 450px');
