@@ -1,4 +1,5 @@
 let restaurant;
+let reviews;
 var newMap;
 
 /**
@@ -33,7 +34,14 @@ initMap = () => {
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
   });
-}  
+  fetchReviewsFromURL((error, reviews) => {
+    if (error) {
+      console.log(error);
+    } else {
+      fillReviewsHTML(reviews);
+    }
+  });
+}
  
 /* window.initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
@@ -109,7 +117,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  //fillReviewsHTML();
 }
 
 /**
@@ -135,7 +143,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -169,7 +177,7 @@ createReviewHTML = (review) => {
   div.appendChild(name);
 
   const date = document.createElement('span');
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.updatedAt).toDateString();
   date.setAttribute('class', 'review-date');
   div.appendChild(date);
 
@@ -211,4 +219,25 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+/**
+ * Get the reviews for this restaurant.
+ */
+fetchReviewsFromURL = (callback) => {
+  callback("testing reviews", null);
+  if (self.reviews) { // reviews already fetched!
+    callback(null, self.reviews)
+    return;
+  }
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    error = 'No restaurant id in URL'
+    callback(error, null);
+  } else {
+    DBHelper.fetchReviewsById(id, (error, reviews) => {
+      self.reviews = reviews;
+      callback(null, reviews)
+    });
+  }
 }

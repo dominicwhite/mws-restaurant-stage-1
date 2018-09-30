@@ -9,12 +9,12 @@ class DBHelper {
    */
   static get DATABASE_URL() {
     const port = 1337; // Change this to your server port
-    return `http://localhost:${port}/restaurants`;
+    return `http://localhost:${port}/`;
   }
   
   static fetchRestaurantsFromServer(callback) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
+    xhr.open('GET', DBHelper.DATABASE_URL + 'restaurants');
     xhr.onload = () => {
       if (xhr.status === 200) { // Got a success response from server!
         const restaurants = JSON.parse(xhr.responseText);
@@ -42,6 +42,7 @@ class DBHelper {
     if ('indexedDB' in window){
       const idbPromise = idb.open('restaurants-db', 1, upgradeDB => {
         upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+        upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
       });
       idbPromise.then(function(db) {
         const tx = db.transaction('restaurants', 'readwrite');
@@ -206,6 +207,70 @@ class DBHelper {
     );
     return marker;
   } */
+
+  /**
+   * Fetch all reviews from server and cache
+   */
+  static fetchReviewsFromServer(callback) {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', DBHelper.DATABASE_URL + 'reviews');
+    xhr.onload = () => {
+      if (xhr.status === 200) { // Got a success response from server!
+        const reviews = JSON.parse(xhr.responseText);
+        
+        idb.open('restaurants-db', 1).then(function(db) {
+          const tx = db.transaction('reviews', 'readwrite');
+          const keyvalStore = tx.objectStore('reviews')
+          for (const r of reviews) {
+            keyvalStore.put(r);
+          }
+        });
+        callback(null, reviews);
+      } else { // Oops!. Got an error from server.
+        const error = (`Request failed. Returned status of ${xhr.status}`);
+        callback(error, null);
+      }
+    };
+    xhr.send();
+  }
+
+  /**
+   * Fetch all reviews
+   */
+  static fetchReviews(callback) {
+    if ('indexedDB' in window){
+      const idbPromise = idb.open('restaurants-db', 1);
+      idbPromise.then(function(db) {
+        const tx = db.transaction('reviews', 'readwrite');
+        const keyvalStore = tx.objectStore('reviews');
+        keyvalStore.getAll().then(
+          function(vals) {
+            if (vals.length > 0){
+              callback(null, vals);
+            }
+            else{
+              DBHelper.fetchReviewsFromServer(callback);
+            }
+          }
+        );
+      });
+    }
+  }
+
+  /**
+   * Fetch a restaurant's reviews by its ID.
+   */
+  static fetchReviewsById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchReviews((error, reviews) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const theseReviews = reviews.filter(r => r.restaurant_id == id);
+          callback(null, theseReviews);
+      }
+    });
+  }
 
 }
 
