@@ -1,6 +1,6 @@
 const CACHE_NAME = 'restaurants-cache-v2';
 
-const urlsToCache = ['/css/styles.css', '/js/main.js'];
+const urlsToCache = ['/css/styles.css', '/js/main.js', '/js/restaurant_info.js', '/js/dbhelper.js'];
 
 self.addEventListener('install', function(event) {
   event.waitUntil(

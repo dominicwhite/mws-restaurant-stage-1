@@ -1,6 +1,8 @@
 /**
  * Common database helper functions.
  */
+const IDB_VERSION = 2;
+
 class DBHelper {
 
   /**
@@ -19,7 +21,7 @@ class DBHelper {
       if (xhr.status === 200) { // Got a success response from server!
         const restaurants = JSON.parse(xhr.responseText);
         
-        idb.open('restaurants-db', 1).then(function(db) {
+        idb.open('restaurants-db', IDB_VERSION).then(function(db) {
           const tx = db.transaction('restaurants', 'readwrite');
           const keyvalStore = tx.objectStore('restaurants')
           for (const r of restaurants) {
@@ -40,9 +42,10 @@ class DBHelper {
    */
   static fetchRestaurants(callback) {
     if ('indexedDB' in window){
-      const idbPromise = idb.open('restaurants-db', 1, upgradeDB => {
+      const idbPromise = idb.open('restaurants-db', IDB_VERSION, upgradeDB => {
         upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
-        upgradeDB.createObjectStore('reviews', {keyPath: 'id'});
+        upgradeDB.createObjectStore('reviews', {keyPath: 'id', autoIncrement: true});
+        upgradeDB.createObjectStore('localdata', {keyPath: 'id', autoIncrement: true});
       });
       idbPromise.then(function(db) {
         const tx = db.transaction('restaurants', 'readwrite');
@@ -213,12 +216,12 @@ class DBHelper {
    */
   static fetchReviewsFromServer(callback) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL + 'reviews');
+    xhr.open('GET', DBHelper.DATABASE_URL + 'reviews?limit=-1');
     xhr.onload = () => {
       if (xhr.status === 200) { // Got a success response from server!
         const reviews = JSON.parse(xhr.responseText);
         
-        idb.open('restaurants-db', 1).then(function(db) {
+        idb.open('restaurants-db', IDB_VERSION).then(function(db) {
           const tx = db.transaction('reviews', 'readwrite');
           const keyvalStore = tx.objectStore('reviews')
           for (const r of reviews) {
@@ -239,7 +242,7 @@ class DBHelper {
    */
   static fetchReviews(callback) {
     if ('indexedDB' in window){
-      const idbPromise = idb.open('restaurants-db', 1);
+      const idbPromise = idb.open('restaurants-db', IDB_VERSION);
       idbPromise.then(function(db) {
         const tx = db.transaction('reviews', 'readwrite');
         const keyvalStore = tx.objectStore('reviews');
@@ -269,6 +272,83 @@ class DBHelper {
         const theseReviews = reviews.filter(r => r.restaurant_id == id);
           callback(null, theseReviews);
       }
+    });
+  }
+
+  /**
+   * Save a new review to IndexedDB
+   */
+  static cacheNewReview(review) {
+    return idb.open('restaurants-db', IDB_VERSION).then(function(db){
+      const tx = db.transaction('reviews', 'readwrite');
+      const keyvalStore = tx.objectStore('reviews');
+      return keyvalStore.put(review);
+    });
+  }
+
+
+  /**
+   * Add an unsynced review to IndexedDB to be sent to server on next reload
+   */
+  static queueNewReview(review) {
+    return idb.open('restaurants-db', IDB_VERSION).then(function(db){
+      const tx = db.transaction('localdata', 'readwrite');
+      const keyvalStore = tx.objectStore('localdata');
+      return keyvalStore.put(review);
+    });
+  }
+  
+  static sendUpdate(data, fresh=true){
+    const XHR = new XMLHttpRequest();
+    // Define what happens on successful data submission
+    XHR.addEventListener("load", function(event) {
+      alert(event.target.responseText);
+      console.log(data.id);
+      if (!fresh) DBHelper.deleteLocalUpdate(data.id);
+    });
+    // Define what happens in case of error
+    XHR.addEventListener("error", function(event) {
+      alert('Oops! Something went wrong.');
+      if (fresh) DBHelper.queueNewReview(createReviewObject(data));
+    });
+
+    // Set up our request
+    XHR.open("POST", DBHelper.DATABASE_URL + 'reviews');
+
+    // The data sent is what the user provided in the form
+    XHR.send(data);
+  }
+  
+  static idbSync(){
+    idb.open('restaurants-db', IDB_VERSION).then(function(db){
+      const tx = db.transaction('localdata', 'readwrite');
+      const keyvalStore = tx.objectStore('localdata');
+      keyvalStore.getAll().then(
+        function(vals) {
+          console.log(vals);
+          for (const v of vals) {
+            DBHelper.sendUpdate(
+              {
+                id: v.id,
+                restaurant_id: v.restaurant_id,
+                name: v.name,
+                rating: v.rating,
+                comments: v.comments
+              }, false
+            );
+          }
+        }
+      );
+    });
+  }
+  
+  static deleteLocalUpdate(id){
+    idb.open('restaurants-db', IDB_VERSION).then(function(db){
+      const tx = db.transaction('localdata', 'readwrite');
+      const keyvalStore = tx.objectStore('localdata');
+      console.log(id);
+      keyvalStore.delete(id);
+      return tx.complete;
     });
   }
 

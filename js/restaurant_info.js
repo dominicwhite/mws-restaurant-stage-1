@@ -7,6 +7,7 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
+  DBHelper.idbSync();
 });
 
 /**
@@ -141,6 +142,83 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 }
 
 /**
+ * Create a field and label
+ */
+createFormField = (field) => {
+  const entry = document.createElement('p');
+  if (field.label) {
+    const label = document.createElement('label');
+    label.for = field.id;
+    label.innerHTML = field.label;
+    entry.appendChild(label);
+    entry.appendChild(document.createElement('br'));
+  }
+  const input = document.createElement(field.fieldType);
+  Object.entries(field.attributes).forEach( ([attribute, value]) => {
+    input.setAttribute(attribute, value);
+  });
+  if (field.fieldType === 'select'){
+    field.attributes.options.map( (option) => {
+      const opt = document.createElement('option');
+      opt.value = option;
+      opt.innerHTML = option;
+      input.appendChild(opt);
+    });
+  }
+  entry.appendChild(input);
+  return entry;
+}
+
+/**
+ * Create form to add new review.
+ */
+createNewReviewForm = () => {
+  const container = document.getElementById('new-review-content');
+  
+  const title = document.createElement('h2');
+  title.innerHTML = 'Write a Review';
+  container.appendChild(title);
+  
+  const form = document.createElement('form');
+  form.id = 'new-review-form';
+  
+  formFields = [
+    {
+      label: 'Reviewer Name:',
+      fieldType: 'input',
+      attributes: {id: 'username', name: 'name', type: 'text'}
+    },
+    {
+      label: 'Rating (out of 5):',
+      fieldType: 'select',
+      attributes: {id: 'user-rating', name: 'rating', options: [5, 4, 3, 2, 1]}
+    },
+    {
+      label: 'Review:',
+      fieldType: 'textarea',
+      attributes: {id: 'user-review', name: 'comments', rows: '10', cols: ''}
+    },
+    {
+      fieldType: 'input',
+      attributes: {name: 'restaurant_id', type: 'hidden', value: self.restaurant.id}
+    },
+    {
+      fieldType: 'input',
+      attributes: {type: 'submit', id: 'submit-review', value: 'Leave Review'}
+    }
+  ];
+  
+  formFields.map( (ff) => {
+    form.appendChild(createFormField(ff));
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitReview();
+  });
+  container.appendChild(form);
+}
+
+/**
  * Create all reviews HTML and add them to the webpage.
  */
 fillReviewsHTML = (reviews) => {
@@ -148,7 +226,22 @@ fillReviewsHTML = (reviews) => {
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
-
+  
+  const newReviewButton = document.createElement('button');
+  newReviewButton.innerHTML = '&#43; Add Review';
+  newReviewButton.id = 'new-review-button';
+  newReviewButton.onclick = () => {
+    document.getElementById('new-review-modal').style.display = 'block';
+    document.getElementById('new-review-content').style.display = 'block';
+  };
+  container.appendChild(newReviewButton);
+  
+  createNewReviewForm();
+  
+  document.getElementById("close-modal").onclick = () => {
+    document.getElementById('new-review-modal').style.display = 'none';
+    document.getElementById('new-review-content').style.display = 'none';
+  };
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
@@ -160,6 +253,8 @@ fillReviewsHTML = (reviews) => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
+  
+  document.getElementById('new-review-content').style.display = 'none';
 }
 
 /**
@@ -177,7 +272,7 @@ createReviewHTML = (review) => {
   div.appendChild(name);
 
   const date = document.createElement('span');
-  date.innerHTML = new Date(review.updatedAt).toDateString();
+  date.innerHTML = new Date(review.createdAt).toDateString();
   date.setAttribute('class', 'review-date');
   div.appendChild(date);
 
@@ -225,7 +320,6 @@ getParameterByName = (name, url) => {
  * Get the reviews for this restaurant.
  */
 fetchReviewsFromURL = (callback) => {
-  callback("testing reviews", null);
   if (self.reviews) { // reviews already fetched!
     callback(null, self.reviews)
     return;
@@ -240,4 +334,30 @@ fetchReviewsFromURL = (callback) => {
       callback(null, reviews)
     });
   }
+}
+
+function refreshForm() {
+  document.getElementById('new-review-modal').style.display = 'none';
+}
+
+function createReviewObject(FD){
+  const review = {createdAt: Date.now()};
+  for ([key, val] of FD.entries()) {
+    review[key] = val;
+  }
+  return review;
+}
+
+function submitReview() {
+  const form = document.getElementById('new-review-form');
+  const FD = new FormData(form);
+  const review = createReviewObject(FD);
+  const ul = document.getElementById('reviews-list').appendChild(createReviewHTML(review));
+  let idbKey;
+  DBHelper.cacheNewReview(review);
+  
+  DBHelper.sendUpdate(FD);
+  
+  refreshForm();
+  
 }
