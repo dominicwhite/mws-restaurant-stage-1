@@ -4,6 +4,22 @@ var newMap;
 var focusedElementBeforeModal;
 
 /**
+* Register service worker if supported
+*/
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(
+      function(registration) {
+        console.log("Success! Scope: " + registration.scope);
+      },
+      function(error) {
+        console.log("Error. " + error);
+      }
+    );
+  });
+}
+
+/**
  * Initialize map as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
