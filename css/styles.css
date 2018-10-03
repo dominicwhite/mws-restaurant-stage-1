@@ -290,6 +290,20 @@ nav h1 a {
   text-transform: uppercase;
   border-radius: 15px 0;
 }
+#restaurant-favourite {
+  background-color: #f58500;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 36px;
+  width: 200px;
+  padding: 10px;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+  border-radius: 15px 0;
+}
 
 /* ====================== Restaurant Details ====================== */
 .inside header {

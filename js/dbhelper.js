@@ -353,5 +353,22 @@ class DBHelper {
     });
   }
 
+  /**
+   * Toggle favourite
+   */ 
+  static toggleFavourite(callback, id, toggle='true'){
+    const XHR = new XMLHttpRequest();
+    XHR.addEventListener("load", function(event) {
+      callback()
+    });
+    XHR.addEventListener("error", function(event) {
+      
+    });
+    XHR.open("PUT", DBHelper.DATABASE_URL + `restaurants/${id}/?is_favorite=${toggle}`);
+    XHR.send();
+  }
+
 }
+
+
 

@@ -1,3 +1,8 @@
+/**
+ * This website uses FontAwesome icons under a Creative Commons Attribution 
+ * 4.0 International license: https://fontawesome.com/license
+ */
+
 let restaurant;
 let reviews;
 var newMap;
@@ -114,9 +119,46 @@ insertIntoImgURL = (url, subStr) => {
   return url + subStr + '.jpg';
 }
 
+function makeFavourite(favEl){
+  favEl.style.background = '#4BB543';
+  favEl.innerHTML = 'Favourited';
+}
+
+function removeFavourite(favEl){
+  favEl.style.background = '#f58500';
+  favEl.innerHTML = 'Make Favourite';
+}
+
 fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
+
+  const favourite = document.getElementById('restaurant-favourite');
+  let toggleParam;
+  if (restaurant.is_favorite && restaurant.is_favorite === 'true'){
+    makeFavourite(favourite);
+    toggleParam = 'false';
+  } else { 
+    favourite.innerHTML = 'Make favourite';
+    toggleParam = 'true';
+  }
+  favourite.onclick = function(){
+    if (window.navigator.onLine){
+      DBHelper.toggleFavourite(
+        function() {
+          if (toggleParam === 'true'){
+            console.log('adding');
+            makeFavourite(favourite);
+            toggleParam = 'false';
+          } else {
+            removeFavourite(favourite);
+            console.log('removing');
+            toggleParam = 'true';
+          }
+        }, restaurant.id, toggleParam
+      );
+    }
+  }
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
