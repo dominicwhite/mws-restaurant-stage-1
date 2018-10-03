@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   DBHelper.idbSync();
 });
 
+window.addEventListener('online', function(e) { DBHelper.idbSync(); });
+
 /**
  * Fetch all neighborhoods and set their HTML.
  */

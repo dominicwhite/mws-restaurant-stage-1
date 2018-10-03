@@ -286,7 +286,6 @@ class DBHelper {
     });
   }
 
-
   /**
    * Add an unsynced review to IndexedDB to be sent to server on next reload
    */
@@ -297,35 +296,35 @@ class DBHelper {
       return keyvalStore.put(review);
     });
   }
-  
+
+  /**
+   * Send review to server
+   */ 
   static sendUpdate(data, fresh=true){
     const XHR = new XMLHttpRequest();
-    // Define what happens on successful data submission
     XHR.addEventListener("load", function(event) {
-      alert(event.target.responseText);
-      console.log(data.id);
       if (!fresh) DBHelper.deleteLocalUpdate(data.id);
     });
-    // Define what happens in case of error
     XHR.addEventListener("error", function(event) {
-      alert('Oops! Something went wrong.');
       if (fresh) DBHelper.queueNewReview(createReviewObject(data));
     });
-
-    // Set up our request
     XHR.open("POST", DBHelper.DATABASE_URL + 'reviews');
-
-    // The data sent is what the user provided in the form
-    XHR.send(data);
+    if (!fresh) {
+      //delete data['id'];
+      XHR.send(JSON.stringify(data, ['name', 'rating', 'restaurant_id', 'comments']));
+    }
+    else XHR.send(data);
   }
-  
+
+  /**
+   * Sync localData key-value store (on reload or online)
+   */ 
   static idbSync(){
     idb.open('restaurants-db', IDB_VERSION).then(function(db){
       const tx = db.transaction('localdata', 'readwrite');
       const keyvalStore = tx.objectStore('localdata');
       keyvalStore.getAll().then(
         function(vals) {
-          console.log(vals);
           for (const v of vals) {
             DBHelper.sendUpdate(
               {
@@ -342,11 +341,13 @@ class DBHelper {
     });
   }
   
+  /**
+   * Delete review from localdata key-val store
+   */ 
   static deleteLocalUpdate(id){
     idb.open('restaurants-db', IDB_VERSION).then(function(db){
       const tx = db.transaction('localdata', 'readwrite');
       const keyvalStore = tx.objectStore('localdata');
-      console.log(id);
       keyvalStore.delete(id);
       return tx.complete;
     });

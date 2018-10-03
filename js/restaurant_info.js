@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
   DBHelper.idbSync();
 });
 
+window.addEventListener('online', function(e) { DBHelper.idbSync(); });
+
+document.ononline = function () {  }
+
 /**
  * Initialize leaflet map
  */
@@ -338,6 +342,8 @@ fetchReviewsFromURL = (callback) => {
 
 function refreshForm() {
   document.getElementById('new-review-modal').style.display = 'none';
+  document.getElementById('username').value = '';
+  document.getElementById('user-review').value = '';
 }
 
 function createReviewObject(FD){
