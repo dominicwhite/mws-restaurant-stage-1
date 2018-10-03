@@ -1,6 +1,7 @@
 let restaurant;
 let reviews;
 var newMap;
+var focusedElementBeforeModal;
 
 /**
  * Initialize map as soon as the page is loaded.
@@ -235,17 +236,48 @@ fillReviewsHTML = (reviews) => {
   newReviewButton.innerHTML = '&#43; Add Review';
   newReviewButton.id = 'new-review-button';
   newReviewButton.onclick = () => {
-    document.getElementById('new-review-modal').style.display = 'block';
+    focusedElementBeforeModal = document.activeElement;
+    const modal = document.getElementById('new-review-modal');
+    modal.style.display = 'block';
     document.getElementById('new-review-content').style.display = 'block';
+    modal.addEventListener('keydown', trapTabKey);
+    const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contentediterable]';
+    let focusableElements = modal.querySelectorAll(focusableElementsString);
+    focusableElements = Array.prototype.slice.call(focusableElements);
+    
+    var firstTabStop = focusableElements[0];
+    var lastTabStop = focusableElements[focusableElements.length - 1];
+    
+    firstTabStop.focus();
+    
+    function trapTabKey(e){
+      if (e.keyCode === 9){
+        if (e.shiftKey) {
+          if (document.activeElement === firstTabStop) {
+            e.preventDefault();
+            lastTabStop.focus();
+          }
+        } else {
+          if (document.activeElement === lastTabStop) {
+            e.preventDefault();
+            firstTabStop.focus();
+          }
+        }
+      }
+    }
   };
   container.appendChild(newReviewButton);
   
   createNewReviewForm();
   
-  document.getElementById("close-modal").onclick = () => {
+  document.getElementById("close-modal").onclick = function() {
     document.getElementById('new-review-modal').style.display = 'none';
     document.getElementById('new-review-content').style.display = 'none';
+    document.getElementById('new-review-button').focus();
   };
+  
+  //document.getElementById("close-modal").onclick = closeModal();
+  
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
