@@ -469,7 +469,8 @@ nav h1 a {
 .modal-content {
   display: none;
   background-color: rgb(238, 238, 238);
-  min-height: 80vh;
+  height: 80vh;
+  max-height: 620px;
   width: 80vw;
   margin: 10vh 10vw;
   padding: 20px 10vw;
@@ -519,4 +520,18 @@ nav h1 a {
   margin: 0;
   border: 0;
   box-sizing: border-box;
+}
+@media screen and (min-width: 600px) {
+  .modal-content {
+    width: 70vw;
+    margin: 10vh 15vw;
+    padding: 20px 10vw;
+  }
+}
+@media screen and (min-width: 1400px) {
+  .modal-content {
+    width: 50vw;
+    margin: 10vh 25vw;
+    padding: 20px 5vw;
+  }
 }
