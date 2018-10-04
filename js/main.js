@@ -111,6 +111,7 @@ initMap = () => {
   }).addTo(newMap);
 
   updateRestaurants();
+  DBHelper.fetchReviews(() => {}); // fetch and cache reviews after page load
 }
 /* window.initMap = () => {
   let loc = {
