@@ -484,7 +484,8 @@ nav h1 a {
   display: none;
   background-color: rgb(238, 238, 238);
   height: 80vh;
-  max-height: 620px;
+  max-height: 650px;
+  min-height: 620px;
   width: 80vw;
   margin: 10vh 10vw;
   padding: 20px 10vw;
