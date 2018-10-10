@@ -215,8 +215,15 @@ createRestaurantHTML = (restaurant) => {
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', 'More details about ' + restaurant.name);
   li.append(more)
+  
+  if (restaurant.is_favorite === 'true' || restaurant.is_favorite == true){
+    const star = document.createElement('div');
+    star.className = 'fave-icon';
+    star.innerHTML = '&#10084; Your favourite!'; //9733';
+    li.append(star);
+  }
 
-  return li
+  return li;
 }
 
 /**

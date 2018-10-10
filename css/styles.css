@@ -208,6 +208,11 @@ nav h1 a {
     flex-basis: 100%;
   }
 }
+.fave-icon {
+  color: #ec5252;
+  font-size: 16pt;
+  padding-left: 5px;
+}
 
 /* ====================== Restaurant Listing ====================== */
 #restaurant-list-container {
