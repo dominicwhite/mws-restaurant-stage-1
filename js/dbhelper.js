@@ -317,7 +317,7 @@ class DBHelper {
   }
 
   /**
-   * Sync localData key-value store (on reload or online)
+   * Sync localData (favourites) key-value store (on reload or online)
    */ 
   static idbSync(){
     idb.open('restaurants-db', IDB_VERSION).then(function(db){
@@ -366,6 +366,27 @@ class DBHelper {
     });
     XHR.open("PUT", DBHelper.DATABASE_URL + `restaurants/${id}/?is_favorite=${toggle}`);
     XHR.send();
+  }
+
+  /**
+   * Toggle favourite
+   */
+  static toggleIsFavourite(restaurantId) {
+    idb.open('restaurants-db', IDB_VERSION).then(function(db){
+      const tx = db.transaction('restaurants', 'readwrite');
+      const keyvalStore = tx.objectStore('restaurants');
+      keyvalStore.get(restaurantId).then(function(e) {
+        if (!(e.is_favorite) || e.favorite === 'false' || e.is_favourite === false) {
+          e.is_favorite = true;
+          console.log("Setting idb fave to true");
+        } else {
+          e.is_favorite = false;
+          console.log("Setting idb fave to false");
+        }
+        keyvalStore.put(e);
+      });
+      return tx.complete;
+    });
   }
 
 }

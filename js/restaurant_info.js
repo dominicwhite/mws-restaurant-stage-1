@@ -135,11 +135,11 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const favourite = document.getElementById('restaurant-favourite');
   let toggleParam;
-  if (restaurant.is_favorite && restaurant.is_favorite === 'true'){
+  if (restaurant.is_favorite && (restaurant.is_favorite === 'true' || restaurant.is_favorite === true)){
     makeFavourite(favourite);
     toggleParam = 'false';
   } else { 
-    favourite.innerHTML = 'Make favourite';
+    favourite.innerHTML = 'Make favorite';
     toggleParam = 'true';
   }
   favourite.onclick = function(){
@@ -147,12 +147,14 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
       DBHelper.toggleFavourite(
         function() {
           if (toggleParam === 'true'){
-            console.log('adding');
+            console.log('adding favourite');
             makeFavourite(favourite);
+            DBHelper.toggleIsFavourite(restaurant.id);
             toggleParam = 'false';
           } else {
+            console.log('removing favourite');
             removeFavourite(favourite);
-            console.log('removing');
+            DBHelper.toggleIsFavourite(restaurant.id);
             toggleParam = 'true';
           }
         }, restaurant.id, toggleParam
